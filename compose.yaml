@@ -1,0 +1,23 @@
+# Servizi per lo sviluppo in locale. Avvio: docker compose up -d
+services:
+  db:
+    image: postgres:18
+    environment:
+      # Credenziali solo per lo sviluppo in locale: in produzione arrivano da DATABASE_URL
+      POSTGRES_USER: daylog
+      POSTGRES_PASSWORD: daylog
+      POSTGRES_DB: daylog
+    ports:
+      # Solo su localhost: il database non è raggiungibile dagli altri dispositivi in rete
+      - "127.0.0.1:5432:5432"
+    volumes:
+      # Da Postgres 18 i dati stanno in una sottocartella per versione di /var/lib/postgresql
+      - pgdata:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U daylog -d daylog"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  pgdata:
