@@ -5,7 +5,7 @@ from datetime import UTC, date, datetime
 import pytest
 from sqlalchemy.exc import IntegrityError
 
-from daylog.models import Check, Habit, User
+from daylog.db.models import Check, Habit, User
 
 
 @pytest.fixture
