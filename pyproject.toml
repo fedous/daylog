@@ -7,7 +7,11 @@ authors = [{ name = "fedous" }]
 license = "MIT"
 requires-python = ">=3.14"
 dependencies = [
+    "alembic>=1.20.1",
     "fastapi[standard]>=0.163.0",
+    "psycopg[binary]>=3.3.9",
+    "pydantic-settings>=2.16.3",
+    "sqlalchemy>=2.1.8",
 ]
 
 [build-system]
@@ -27,5 +31,16 @@ testpaths = ["tests"]
 [dependency-groups]
 dev = [
     "pytest>=9.2.0",
+    "pytest-cov>=7.1.0",
     "ruff>=0.17.5",
+    "testcontainers[postgres]>=4.15.0",
 ]
+
+[tool.coverage.run]
+# Misura il codice dell'app e le migrazioni, non i test
+source = ["src/daylog", "migrations"]
+branch = true
+
+[tool.coverage.report]
+show_missing = true
+skip_empty = true
