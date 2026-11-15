@@ -10,6 +10,8 @@ from sqlalchemy import URL, Engine, create_engine, make_url, text
 from sqlalchemy.orm import Session
 from testcontainers.community.postgres import PostgresContainer
 
+from daylog.db.models import User
+
 ALEMBIC_INI = Path(__file__).parent.parent / "alembic.ini"
 
 
@@ -66,3 +68,12 @@ def sessione(engine_migrato: Engine) -> Session:
         with Session(bind=connessione, join_transaction_mode="create_savepoint") as sessione:
             yield sessione
         transazione.rollback()
+
+
+@pytest.fixture
+def io(sessione: Session) -> User:
+    """L'utente dei test."""
+    utente = User(email="io@example.com")
+    sessione.add(utente)
+    sessione.flush()
+    return utente

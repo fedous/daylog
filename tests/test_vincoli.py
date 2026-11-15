@@ -5,15 +5,7 @@ from datetime import UTC, date, datetime
 import pytest
 from sqlalchemy.exc import IntegrityError
 
-from daylog.db.models import Check, Habit, User
-
-
-@pytest.fixture
-def io(sessione) -> User:
-    utente = User(email="io@example.com")
-    sessione.add(utente)
-    sessione.flush()
-    return utente
+from daylog.db.models import Check, Habit
 
 
 @pytest.fixture

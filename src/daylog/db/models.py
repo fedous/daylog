@@ -50,11 +50,12 @@ class User(Timestamps, Base):
 class Habit(Timestamps, Base):
     __tablename__ = "habits"
     __table_args__ = (
-        # Nomi unici solo tra le abitudini attive: un nome archiviato si può riusare
+        # Nomi unici solo tra le abitudini attive (un nome archiviato si può riusare),
+        # senza distinguere maiuscole e minuscole: "Meditare" e "meditare" sono la stessa
         Index(
             "uq_habits_user_id_name_active",
             "user_id",
-            "name",
+            text("lower(name)"),
             unique=True,
             postgresql_where=text("archived_at IS NULL"),
         ),
