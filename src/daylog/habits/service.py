@@ -18,7 +18,8 @@ class HabitNotFound(Exception):
     """L'abitudine non esiste, o è di un altro utente."""
 
 
-def _get(session: Session, user_id: int, habit_id: int) -> Habit:
+def get_habit(session: Session, user_id: int, habit_id: int) -> Habit:
+    """L'abitudine, se esiste ed è dell'utente."""
     query = select(Habit).where(Habit.id == habit_id, Habit.user_id == user_id)
     habit = session.scalar(query)
     if habit is None:
@@ -67,7 +68,7 @@ def update_habit(
 ) -> Habit:
     """Cambia nome e unità. Il tipo non si cambia: si archivia e se ne crea un'altra."""
     name = name.strip()
-    habit = _get(session, user_id, habit_id)
+    habit = get_habit(session, user_id, habit_id)
     with _unique_name(session, name):
         habit.name = name
         habit.unit = unit
@@ -76,14 +77,14 @@ def update_habit(
 
 def archive(session: Session, user_id: int, habit_id: int) -> None:
     """Toglie l'abitudine da "oggi". Le spunte restano, e il nome si può riusare."""
-    habit = _get(session, user_id, habit_id)
+    habit = get_habit(session, user_id, habit_id)
     habit.archived_at = func.now()
     session.flush()
 
 
 def restore(session: Session, user_id: int, habit_id: int) -> Habit:
     """Riporta un'abitudine archiviata tra le attive, in fondo alla lista."""
-    habit = _get(session, user_id, habit_id)
+    habit = get_habit(session, user_id, habit_id)
     # Prima della query: la SELECT farebbe un autoflush delle modifiche fuori dal SAVEPOINT
     position = _next_position(session, user_id)
     with _unique_name(session, habit.name):

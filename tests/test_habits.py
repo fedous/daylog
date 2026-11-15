@@ -3,7 +3,6 @@
 import pytest
 
 from daylog import habits
-from daylog.db.models import User
 
 
 def test_un_abitudine_nuova_compare_in_fondo_alla_lista(sessione, io):
@@ -100,15 +99,6 @@ def test_non_si_puo_ripristinare_un_abitudine_se_il_nome_e_stato_riusato(session
 
     with pytest.raises(habits.DuplicateHabitName):
         habits.restore(sessione, io.id, vecchia.id)
-
-
-@pytest.fixture
-def altro(sessione) -> User:
-    """Un secondo utente, per controllare che ognuno veda solo le sue abitudini."""
-    utente = User(email="altro@example.com")
-    sessione.add(utente)
-    sessione.flush()
-    return utente
 
 
 MODIFICHE = {

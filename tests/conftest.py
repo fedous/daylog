@@ -77,3 +77,12 @@ def io(sessione: Session) -> User:
     sessione.add(utente)
     sessione.flush()
     return utente
+
+
+@pytest.fixture
+def altro(sessione: Session) -> User:
+    """Un secondo utente, per controllare che ognuno veda e modifichi solo le sue cose."""
+    utente = User(email="altro@example.com")
+    sessione.add(utente)
+    sessione.flush()
+    return utente
