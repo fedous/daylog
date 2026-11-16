@@ -1,0 +1,22 @@
+{# Una riga della pagina del giorno: la include day.html, e le route delle spunte la restituiscono da sola #}
+{% set url = "/days/" ~ day.day.isoformat() ~ "/checks/" ~ row.habit.id %}
+<li>
+  {{ row.habit.name }}
+  {% if row.habit.kind == "boolean" %}
+    {# Già fatta: toccarla toglie la spunta (DELETE). Non fatta: la mette (PUT) #}
+    <input type="checkbox" aria-label="Fatto"
+           {% if row.done %}checked hx-delete="{{ url }}"{% else %}hx-put="{{ url }}"{% endif %}
+           hx-target="closest li" hx-swap="outerHTML">
+  {% else %}
+    {# HTMX parte al "change" (si esce dal campo dopo averlo cambiato) e manda value=... #}
+    <input type="number" name="value" min="1" value="{{ row.value or '' }}" aria-label="Valore"
+           hx-put="{{ url }}" hx-target="closest li" hx-swap="outerHTML">
+    {{ row.habit.unit or '' }}
+    {% if row.done %}
+      <button hx-delete="{{ url }}" hx-target="closest li" hx-swap="outerHTML">Togli</button>
+    {% endif %}
+  {% endif %}
+  {% if error %}
+    <p role="alert">{{ error }}</p>
+  {% endif %}
+</li>

@@ -1,6 +1,7 @@
 """Fixture per i test di integrazione: un Postgres vero in un container usa e getta."""
 
 import uuid
+from datetime import date
 from pathlib import Path
 
 import pytest
@@ -11,9 +12,10 @@ from sqlalchemy import URL, Engine, create_engine, make_url, text
 from sqlalchemy.orm import Session
 from testcontainers.community.postgres import PostgresContainer
 
+from daylog.days import EditWindow
 from daylog.db.models import User
 from daylog.db.session import get_session
-from daylog.deps import get_user_id
+from daylog.deps import get_edit_window, get_today, get_user_id
 from daylog.main import app
 
 ALEMBIC_INI = Path(__file__).parent.parent / "alembic.ini"
@@ -93,8 +95,20 @@ def altro(sessione: Session) -> User:
 
 
 @pytest.fixture
-def client(sessione: Session, io: User) -> TestClient:
-    """Il client HTTP dei test, senza lifespan: le route usano la sessione e l'utente dei test.
+def oggi() -> date:
+    """Il giorno in corso nei test: fisso, così i test non dipendono dall'orologio."""
+    return date(2026, 11, 16)
+
+
+@pytest.fixture
+def finestra(oggi: date) -> EditWindow:
+    """La finestra di modifica di default: da oggi fino a 7 giorni fa."""
+    return EditWindow(today=oggi, days=7)
+
+
+@pytest.fixture
+def client(sessione: Session, io: User, oggi: date, finestra: EditWindow) -> TestClient:
+    """Il client HTTP dei test, senza lifespan: le route usano sessione, utente e giorno dei test.
 
     dependency_overrides dice a FastAPI "al posto di questa dependency usa quest'altra".
     Senza commit, quello che scrive una richiesta lo legge la successiva dello stesso test,
@@ -102,5 +116,8 @@ def client(sessione: Session, io: User) -> TestClient:
     """
     app.dependency_overrides[get_session] = lambda: sessione
     app.dependency_overrides[get_user_id] = lambda: io.id
+    app.dependency_overrides[get_today] = lambda: oggi
+    # Senza lifespan non c'è app.state.edit_window_days
+    app.dependency_overrides[get_edit_window] = lambda: finestra
     yield TestClient(app)
     app.dependency_overrides.clear()

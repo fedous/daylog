@@ -1,11 +1,4 @@
-from fastapi.testclient import TestClient
-
-from daylog.main import app
-
-client = TestClient(app)
-
-
-def test_la_home_mostra_daylog_e_carica_htmx():
+def test_la_home_mostra_daylog_e_carica_htmx(client):
     risposta = client.get("/")
 
     assert risposta.status_code == 200
@@ -14,7 +7,7 @@ def test_la_home_mostra_daylog_e_carica_htmx():
     assert '<script src="/static/htmx.min.js"' in risposta.text
 
 
-def test_htmx_viene_servito_come_file_statico():
+def test_htmx_viene_servito_come_file_statico(client):
     risposta = client.get("/static/htmx.min.js")
 
     assert risposta.status_code == 200

@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h1>{% if day.day == today %}Oggi{% else %}{{ day.day.strftime("%d/%m/%Y") }}{% endif %}</h1>
+  <nav>
+    <a href="/days/{{ previous.isoformat() }}">← giorno prima</a>
+    {% if next_url %}
+      <a href="{{ next_url }}">giorno dopo →</a>
+    {% endif %}
+  </nav>
+  {% if not editable %}
+    <p>Questo giorno non si può più modificare.</p>
+  {% endif %}
+
+  {# disabled su un fieldset disattiva tutti i controlli che contiene #}
+  <fieldset {% if not editable %}disabled{% endif %}>
+  <ul>
+    {% for row in day.habits %}
+      {% include "_habit_row.html" %}
+    {% endfor %}
+  </ul>
+
+  <h2>Nota</h2>
+  {% include "_note.html" %}
+  </fieldset>
+{% endblock %}

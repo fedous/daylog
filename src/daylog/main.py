@@ -7,10 +7,11 @@ from fastapi.staticfiles import StaticFiles
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 
-from daylog import habits, users
+from daylog import days, habits, users
 from daylog.config import Settings
+from daylog.days import routes as days_routes
 from daylog.habits import routes as habits_routes
-from daylog.web import CARTELLA, templates
+from daylog.web import CARTELLA
 
 
 @asynccontextmanager
@@ -30,6 +31,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None]:
 
 app = FastAPI(title="daylog", lifespan=lifespan)
 app.mount("/static", StaticFiles(directory=CARTELLA / "static"), name="static")
+app.include_router(days_routes.router)
 app.include_router(habits_routes.router)
 
 
@@ -42,6 +44,7 @@ def habit_not_found(request: Request, exc: habits.HabitNotFound) -> HTMLResponse
     return HTMLResponse("Abitudine non trovata", status_code=404)
 
 
-@app.get("/", response_class=HTMLResponse)
-def home(request: Request):
-    return templates.TemplateResponse(request, "home.html")
+@app.exception_handler(days.OutsideEditWindow)
+def outside_edit_window(request: Request, exc: days.OutsideEditWindow) -> HTMLResponse:
+    """Un giorno troppo indietro (o nel futuro): si legge, ma non si cambia."""
+    return HTMLResponse("Questo giorno non si può più modificare", status_code=403)

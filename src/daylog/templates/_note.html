@@ -1,0 +1,8 @@
+{# La nota del giorno: la include day.html, e la route della nota la restituisce da sola #}
+<form hx-put="/days/{{ day.day.isoformat() }}/note" hx-swap="outerHTML">
+  <textarea name="text" rows="4" aria-label="Nota del giorno">{{ day.note or '' }}</textarea>
+  <button>Salva</button>
+  {% if saved %}
+    <span role="status">Salvata</span>
+  {% endif %}
+</form>
