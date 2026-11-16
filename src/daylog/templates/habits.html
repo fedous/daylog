@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block title %}Abitudini · daylog{% endblock %}
+
+{% block content %}
+  <h1>Abitudini</h1>
+
+  {% if error %}
+    <p role="alert">{{ error }}</p>
+  {% endif %}
+
+  <form method="post" action="/habits">
+    <input name="name" placeholder="Nome" required>
+    <select name="kind">
+      <option value="boolean">sì/no</option>
+      <option value="quantity">con valore</option>
+    </select>
+    <input name="unit" placeholder="Unità (es. minuti)">
+    <button>Aggiungi</button>
+  </form>
+
+  <ul>
+    {% for habit in active %}
+      <li>
+        <form method="post" action="/habits/{{ habit.id }}">
+          <input name="name" value="{{ habit.name }}" required aria-label="Nome">
+          {% if habit.kind == "quantity" %}
+            <input name="unit" value="{{ habit.unit or '' }}" aria-label="Unità">
+          {% endif %}
+          <button>Salva</button>
+        </form>
+        {# Due pulsanti nello stesso form: il browser manda il name/value di quello premuto #}
+        <form method="post" action="/habits/{{ habit.id }}/move">
+          {% if not loop.first %}
+            <button name="direction" value="up" aria-label="Sposta su">↑</button>
+          {% endif %}
+          {% if not loop.last %}
+            <button name="direction" value="down" aria-label="Sposta giù">↓</button>
+          {% endif %}
+        </form>
+        <form method="post" action="/habits/{{ habit.id }}/archive">
+          <button>Archivia</button>
+        </form>
+      </li>
+    {% endfor %}
+  </ul>
+
+  {% if archived %}
+    <h2>Archiviate</h2>
+    <ul>
+      {% for habit in archived %}
+        <li>
+          {{ habit.name }}
+          <form method="post" action="/habits/{{ habit.id }}/restore">
+            <button>Ripristina</button>
+          </form>
+        </li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+{% endblock %}

@@ -6,11 +6,15 @@ from pathlib import Path
 import pytest
 from alembic import command
 from alembic.config import Config
+from fastapi.testclient import TestClient
 from sqlalchemy import URL, Engine, create_engine, make_url, text
 from sqlalchemy.orm import Session
 from testcontainers.community.postgres import PostgresContainer
 
 from daylog.db.models import User
+from daylog.db.session import get_session
+from daylog.deps import get_user_id
+from daylog.main import app
 
 ALEMBIC_INI = Path(__file__).parent.parent / "alembic.ini"
 
@@ -86,3 +90,17 @@ def altro(sessione: Session) -> User:
     sessione.add(utente)
     sessione.flush()
     return utente
+
+
+@pytest.fixture
+def client(sessione: Session, io: User) -> TestClient:
+    """Il client HTTP dei test, senza lifespan: le route usano la sessione e l'utente dei test.
+
+    dependency_overrides dice a FastAPI "al posto di questa dependency usa quest'altra".
+    Senza commit, quello che scrive una richiesta lo legge la successiva dello stesso test,
+    e il rollback della fixture sessione cancella tutto alla fine.
+    """
+    app.dependency_overrides[get_session] = lambda: sessione
+    app.dependency_overrides[get_user_id] = lambda: io.id
+    yield TestClient(app)
+    app.dependency_overrides.clear()
