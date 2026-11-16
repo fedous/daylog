@@ -14,8 +14,13 @@ ROME = ZoneInfo("Europe/Rome")
 
 
 def get_user_id(request: Request) -> int:
-    """L'utente unico della fase 2, trovato o creato dal lifespan."""
-    return request.app.state.user_id
+    """L'utente unico della fase 2, trovato o creato dal lifespan.
+
+    Lo segna anche in request.state, che vive quanto la richiesta: il log di accesso lo legge da lì.
+    """
+    user_id = request.app.state.user_id
+    request.state.user_id = user_id
+    return user_id
 
 
 def get_today() -> date:

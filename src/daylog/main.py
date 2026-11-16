@@ -1,3 +1,4 @@
+import logging
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 
@@ -7,17 +8,21 @@ from fastapi.staticfiles import StaticFiles
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 
-from daylog import days, habits, users
+from daylog import days, habits, logs, users
 from daylog.config import Settings
 from daylog.days import routes as days_routes
 from daylog.habits import routes as habits_routes
 from daylog.history import routes as history_routes
 from daylog.web import CARTELLA
 
+logger = logging.getLogger(__name__)
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncGenerator[None]:
     """Gira una volta all'avvio (prima di yield) e una allo spegnimento (dopo)."""
+    # Per primo: da qui in poi tutti i log, anche quelli di uvicorn, escono in JSON su stdout
+    logs.configure()
     settings = Settings()
     engine = create_engine(settings.database_url)
     with Session(engine) as session, session.begin():
@@ -26,11 +31,17 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None]:
     app.state.engine = engine
     app.state.user_id = user_id
     app.state.edit_window_days = settings.edit_window_days
+    # L'id e non l'email: nei log niente dati personali
+    logger.info(
+        "daylog avviato",
+        extra={"user_id": user_id, "edit_window_days": settings.edit_window_days},
+    )
     yield
     engine.dispose()
 
 
 app = FastAPI(title="daylog", lifespan=lifespan)
+app.middleware("http")(logs.access_log)
 app.mount("/static", StaticFiles(directory=CARTELLA / "static"), name="static")
 app.include_router(days_routes.router)
 app.include_router(habits_routes.router)

@@ -15,7 +15,7 @@ from testcontainers.community.postgres import PostgresContainer
 from daylog.days import EditWindow
 from daylog.db.models import User
 from daylog.db.session import get_session
-from daylog.deps import get_edit_window, get_today, get_user_id
+from daylog.deps import get_edit_window, get_today
 from daylog.main import app
 
 ALEMBIC_INI = Path(__file__).parent.parent / "alembic.ini"
@@ -115,9 +115,11 @@ def client(sessione: Session, io: User, oggi: date, finestra: EditWindow) -> Tes
     e il rollback della fixture sessione cancella tutto alla fine.
     """
     app.dependency_overrides[get_session] = lambda: sessione
-    app.dependency_overrides[get_user_id] = lambda: io.id
     app.dependency_overrides[get_today] = lambda: oggi
     # Senza lifespan non c'è app.state.edit_window_days
     app.dependency_overrides[get_edit_window] = lambda: finestra
+    # L'utente al posto del lifespan: gira la get_user_id vera, che lo segna nella richiesta
+    app.state.user_id = io.id
     yield TestClient(app)
     app.dependency_overrides.clear()
+    del app.state.user_id

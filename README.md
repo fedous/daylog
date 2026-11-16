@@ -16,6 +16,17 @@ uv run pytest                           # test
 uv run ruff check && uv run ruff format # lint e formattazione
 ```
 
+### Log
+
+I log escono in JSON su stdout, una riga per evento: una per ogni richiesta (`daylog.access`, con `method`, `path` senza query string, `status`, `duration_ms`, `user_id`) e una con lo stack per ogni errore non gestito (`daylog.errors`). Si leggono con [jq](https://jqlang.org/):
+
+```bash
+PYTHONUNBUFFERED=1 uv run fastapi dev src/daylog/main.py | jq -R 'fromjson? // .'
+jq 'select(.status >= 500)' log.txt   # solo gli errori del server
+```
+
+`PYTHONUNBUFFERED=1` serve quando stdout va in una pipe: senza, Python manda le righe a blocchi.
+
 ## Configurazione
 
 Variabili d'ambiente, anche da un file `.env` (non va nella repo). I default sono quelli dello sviluppo in locale.
