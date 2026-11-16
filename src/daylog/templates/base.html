@@ -11,15 +11,26 @@
     {"code": "422", "swap": true},
     {"code": "[45]..", "swap": false, "error": true}
   ]}'>
+  {# Prima Pico, poi il nostro: a parità di selettore vince l'ultima regola letta #}
+  <link rel="stylesheet" href="/static/pico.classless.min.css">
+  <link rel="stylesheet" href="/static/style.css">
   <script src="/static/htmx.min.js" defer></script>
 </head>
 <body>
+  {# aria-current="page" sul link della pagina in cui sei: Pico lo evidenzia #}
+  {% set path = request.url.path %}
+  {% macro link(href, testo, attivo) %}
+    <li><a href="{{ href }}"{% if attivo %} aria-current="page"{% endif %}>{{ testo }}</a></li>
+  {% endmacro %}
   <header>
     <nav aria-label="Pagine">
       <ul>
-        <li><a href="/">Oggi</a></li>
-        <li><a href="/habits">Abitudini</a></li>
-        <li><a href="/history">Storico</a></li>
+        <li><strong>daylog</strong></li>
+      </ul>
+      <ul>
+        {{ link("/", "Oggi", path == "/" or path.startswith("/days/")) }}
+        {{ link("/habits", "Abitudini", path.startswith("/habits")) }}
+        {{ link("/history", "Storico", path.startswith("/history")) }}
       </ul>
     </nav>
   </header>

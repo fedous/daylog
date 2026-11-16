@@ -9,20 +9,24 @@
     <p role="alert">{{ error }}</p>
   {% endif %}
 
-  <form method="post" action="/habits">
-    <input name="name" placeholder="Nome" required>
-    <select name="kind">
-      <option value="boolean">sì/no</option>
-      <option value="quantity">con valore</option>
-    </select>
-    <input name="unit" placeholder="Unità (es. minuti)">
-    <button>Aggiungi</button>
-  </form>
+  {# article: Pico lo disegna come una scheda #}
+  <article>
+    <form method="post" action="/habits">
+      <input name="name" placeholder="Nome" required aria-label="Nome">
+      <select name="kind" aria-label="Tipo">
+        <option value="boolean">sì/no</option>
+        <option value="quantity">con valore</option>
+      </select>
+      <input name="unit" placeholder="Unità (es. minuti)" aria-label="Unità">
+      <button>Aggiungi</button>
+    </form>
+  </article>
 
   <ul>
     {% for habit in active %}
       <li>
-        <form method="post" action="/habits/{{ habit.id }}">
+        {# role="group": Pico mette campi e pulsante sulla stessa riga, attaccati #}
+        <form method="post" action="/habits/{{ habit.id }}" role="group">
           <input name="name" value="{{ habit.name }}" required aria-label="Nome">
           {% if habit.kind == "quantity" %}
             <input name="unit" value="{{ habit.unit or '' }}" aria-label="Unità">
@@ -50,7 +54,7 @@
     <ul>
       {% for habit in archived %}
         <li>
-          {{ habit.name }}
+          <span>{{ habit.name }}</span>
           <form method="post" action="/habits/{{ habit.id }}/restore">
             <button>Ripristina</button>
           </form>

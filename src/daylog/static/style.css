@@ -1,0 +1,94 @@
+/* Il layout di daylog, sopra Pico classless (ADR-0009).
+   Niente classi nei template: i selettori seguono la struttura delle pagine. */
+
+/* Le liste di daylog sono righe, non elenchi puntati */
+main ul {
+  padding: 0;
+}
+
+main ul > li {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 0;
+  margin: 0;
+  border-bottom: 1px solid var(--pico-muted-border-color);
+}
+
+/* Dentro le righe i controlli non prendono tutta la larghezza
+   e non lasciano lo spazio sotto che Pico mette nei form */
+main li :is(input, select, button, form) {
+  margin-bottom: 0;
+}
+
+/* --- Oggi: nome a sinistra, spunta o valore a destra --- */
+
+/* Spunta: tutta la riga è l'etichetta, si tocca ovunque */
+main li > label:has([type="checkbox"]) {
+  display: flex;
+  flex: 1;
+  justify-content: space-between;
+  align-items: center;
+  width: auto;
+  margin: 0;
+}
+
+main li > label:has([type="checkbox"]) > [type="checkbox"] {
+  width: 1.75rem;
+  height: 1.75rem;
+  margin: 0;
+}
+
+/* Valore: il nome prende lo spazio, il campo resta stretto */
+main li > label:not(:has(input)) {
+  flex: 1;
+  margin: 0;
+}
+
+main li > [type="number"] {
+  width: 6rem;
+}
+
+/* Il messaggio d'errore va a capo, sotto la riga */
+[role="alert"] {
+  flex-basis: 100%;
+  margin: 0;
+  color: var(--pico-del-color);
+}
+
+[role="status"] {
+  color: var(--pico-muted-color);
+}
+
+/* Giorno prima / giorno dopo */
+main > nav {
+  margin-bottom: var(--pico-spacing);
+}
+
+/* Un nome di abitudine a sinistra, i pulsanti a destra */
+main li > span {
+  flex: 1;
+}
+
+/* --- Abitudini: il form del nome prende la riga, i pulsanti stanno sotto --- */
+
+main li > form[role="group"] {
+  flex-basis: 100%;
+}
+
+/* Sposta, archivia, ripristina, togli: pulsanti secondari, meno in vista di "Salva" */
+main li > button,
+main li > form:not([role="group"]) button {
+  --pico-background-color: var(--pico-secondary-background);
+  --pico-border-color: var(--pico-secondary-border);
+  --pico-color: var(--pico-secondary-inverse);
+  padding: 0.4rem 0.9rem;
+}
+
+main li > button:is(:hover, :focus),
+main li > form:not([role="group"]) button:is(:hover, :focus) {
+  --pico-background-color: var(--pico-secondary-hover-background);
+  --pico-border-color: var(--pico-secondary-hover-border);
+}

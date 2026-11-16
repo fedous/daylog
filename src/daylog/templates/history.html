@@ -10,9 +10,13 @@
   <ul>
     {% for row in rows %}
       <li>
-        {{ row.habit.name }}:
-        serie in corso {{ giorni(row.streaks.current) }} ·
-        record {{ giorni(row.streaks.best) }}
+        <span>
+          <strong>{{ row.habit.name }}</strong><br>
+          <small>
+            serie in corso {{ giorni(row.streaks.current) }} ·
+            record {{ giorni(row.streaks.best) }}
+          </small>
+        </span>
       </li>
     {% else %}
       {% include "_no_habits.html" %}
