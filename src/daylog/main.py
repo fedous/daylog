@@ -11,6 +11,7 @@ from daylog import days, habits, users
 from daylog.config import Settings
 from daylog.days import routes as days_routes
 from daylog.habits import routes as habits_routes
+from daylog.history import routes as history_routes
 from daylog.web import CARTELLA
 
 
@@ -33,6 +34,7 @@ app = FastAPI(title="daylog", lifespan=lifespan)
 app.mount("/static", StaticFiles(directory=CARTELLA / "static"), name="static")
 app.include_router(days_routes.router)
 app.include_router(habits_routes.router)
+app.include_router(history_routes.router)
 
 
 @app.exception_handler(habits.HabitNotFound)

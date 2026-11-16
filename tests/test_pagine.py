@@ -1,3 +1,6 @@
+import pytest
+
+
 def test_la_home_mostra_daylog_e_carica_htmx(client):
     risposta = client.get("/")
 
@@ -13,3 +16,11 @@ def test_htmx_viene_servito_come_file_statico(client):
     assert risposta.status_code == 200
     assert "javascript" in risposta.headers["content-type"]
     assert risposta.text.startswith("var htmx=")
+
+
+@pytest.mark.parametrize("pagina", ["/", "/habits", "/history"])
+def test_ogni_pagina_ha_il_menu_verso_le_altre(client, pagina):
+    testo = client.get(pagina).text
+
+    for link in ['href="/"', 'href="/habits"', 'href="/history"']:
+        assert link in testo

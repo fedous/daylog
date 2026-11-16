@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block title %}Storico · daylog{% endblock %}
+
+{# "1 giorno", ma "0 giorni" e "3 giorni" #}
+{% macro giorni(n) %}{{ n }} {{ "giorno" if n == 1 else "giorni" }}{% endmacro %}
+
+{% block content %}
+  <h1>Storico</h1>
+  <ul>
+    {% for row in rows %}
+      <li>
+        {{ row.habit.name }}:
+        serie in corso {{ giorni(row.streaks.current) }} ·
+        record {{ giorni(row.streaks.best) }}
+      </li>
+    {% else %}
+      {% include "_no_habits.html" %}
+    {% endfor %}
+  </ul>
+{% endblock %}

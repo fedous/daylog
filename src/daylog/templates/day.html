@@ -17,6 +17,8 @@
   <ul>
     {% for row in day.habits %}
       {% include "_habit_row.html" %}
+    {% else %}
+      {% include "_no_habits.html" %}
     {% endfor %}
   </ul>
 

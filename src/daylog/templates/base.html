@@ -14,6 +14,15 @@
   <script src="/static/htmx.min.js" defer></script>
 </head>
 <body>
+  <header>
+    <nav aria-label="Pagine">
+      <ul>
+        <li><a href="/">Oggi</a></li>
+        <li><a href="/habits">Abitudini</a></li>
+        <li><a href="/history">Storico</a></li>
+      </ul>
+    </nav>
+  </header>
   <main>
     {% block content %}{% endblock %}
   </main>

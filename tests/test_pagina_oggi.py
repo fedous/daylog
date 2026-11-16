@@ -77,7 +77,8 @@ def test_da_un_giorno_passato_si_va_al_giorno_dopo(client):
 
 
 def test_da_ieri_il_giorno_dopo_e_oggi(client):
-    assert 'href="/"' in client.get("/days/2026-11-15").text
+    # Con il testo del link: href="/" da solo c'è anche nel menu di ogni pagina
+    assert 'href="/">giorno dopo' in client.get("/days/2026-11-15").text
 
 
 def test_fuori_dalla_finestra_il_giorno_si_legge_e_basta(client, sessione, io, oggi):
@@ -205,3 +206,11 @@ def test_fuori_dalla_finestra_la_nota_non_si_cambia(client, sessione, io, oggi):
 
     assert risposta.status_code == 403
     assert days.get_day(sessione, io.id, otto_giorni_fa).note is None
+
+
+def test_senza_abitudini_oggi_dice_come_cominciare(client, sessione, io):
+    assert "Nessuna abitudine ancora" in client.get("/").text
+
+    habits.create_habit(sessione, io.id, "Meditare", "boolean")
+
+    assert "Nessuna abitudine ancora" not in client.get("/").text
