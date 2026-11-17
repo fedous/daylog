@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block title %}Offline · daylog{% endblock %}
+
+{% block content %}
+  <h1>Sei offline</h1>
+  <p>Per leggere e salvare spunte e note daylog ha bisogno della rete.</p>
+  {# href vuoto: la pagina che si stava aprendo. Il service worker mostra questa al suo posto,
+     ma l'indirizzo nel browser resta quello #}
+  <p><a href="">Riprova</a></p>
+{% endblock %}

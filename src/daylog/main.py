@@ -8,7 +8,7 @@ from fastapi.staticfiles import StaticFiles
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 
-from daylog import days, habits, logs, users
+from daylog import days, habits, logs, pwa, users
 from daylog.config import Settings
 from daylog.days import routes as days_routes
 from daylog.habits import routes as habits_routes
@@ -46,6 +46,7 @@ app.mount("/static", StaticFiles(directory=CARTELLA / "static"), name="static")
 app.include_router(days_routes.router)
 app.include_router(habits_routes.router)
 app.include_router(history_routes.router)
+app.include_router(pwa.router)
 
 
 @app.exception_handler(habits.HabitNotFound)
